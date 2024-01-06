@@ -1,0 +1,63 @@
+apt install -y build-essential munge libmunge-dev libmunge2 	libmysqlclient-dev libssl-dev libpam0g-dev libnuma-dev perl
+
+
+
+	All the 3 machine
+---------------------------
+	/opt/slurm-21.08.8	
+
+	./configure --prefix=/opt/slurm-21.08.8
+
+	make
+	make install
+
+
+	On Manager
+	-----------
+    	chown munge: /etc/munge/munge.key
+	chmod 400 /etc/munge/munge.key
+	scp -r /etc/munge/munge.key slurm@<IP of compute nodes>:/tmp
+
+	On both Compute Node
+	-------------------
+	cp -r /tmp/munge.key /etc/munge
+
+
+		On All Nodes
+	----------------------------
+
+	chown -R munge: /etc/munge/ /var/log/munge/
+	chmod 0700 /etc/munge/ /var/log/munge/
+	systemctl enable munge  
+	systemctl start munge
+
+	On Manager
+	-----------
+	pwd /opt/slurm-21.08.8
+	cd etc
+	cp slurm.conf.example slurm.conf
+	vi slurm.conf
+
+	On Manager
+	--------------
+
+	ln -s /opt/slurm-21.08.8/etc/slurmctld.service  	/usr/lib/systemd/system/slurmctld.service
+
+
+	ln -s /opt/slurm-21.08.8/etc/slurmd.service  	/usr/lib/systemd/system/slurmd.service
+	
+	/opt/slurm-21.08.8/sbin/slurmctld -D
+
+
+	On Manager
+-------------
+	apt-get install mailutils
+
+
+
+	On Manager
+	---------------
+	
+	export PATH="/opt/slurm-21.08.8/bin:$PATH"        
+	export PATH="/opt/slurm-21.08.8/sbin:$PATH"
+	export LD_LIBRARY_PATH="/opt/slurm-21.08.8/lib:$LD_LIBRARY_PATH"
