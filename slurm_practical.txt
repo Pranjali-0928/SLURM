@@ -1,0 +1,137 @@
+report basic node and partition congiguration
+  scontrol show partition
+report partiton summary information
+   sinfo --long
+report more complelet inf about certian partition
+  sinfo --partition=debug
+report onl down darined and draning noedes and there reson fild
+   sinfo --state=down
+   sinfo --state=drain
+
+
+###############to submit a interctive job ##########################
+
+srun --nodes=1 --time=00:01:00 --pty /bin/bash
+squeue -l (more detail)
+scancel <job_id>
+scancel -u $USER    (cancel user all jobs)
+
+##################################################################
+vi job.sh
+#!/bin/bash
+#SBATCH --job-name=my__job
+#SBATCH --nodes=1
+#SBATCH --error=job.%J.err
+#SBATCH --output=job.%J.out
+echo "job"
+
+quite
+
+sinfo 
+if node state is fail 
+scontrol update nodename=master.lab state=RESUME
+scontrol update nodename=compute1.lab state=RESUME
+scontrol update nodename=compute2.lab state=RESUME
+
+sbatch job.sh
+scontrol show job <job Id>
+################################################################
+jobs exit codeeue
+
+0 > success
+non-zero failure
+EXIT code 1 indicates incorrect
+
+#########################################################
+scontrol show partition
+scontrol show node <node_id>
+scontrol show job <job id>
+scontrol  hold <job_id>
+scontrol  release <job_id>
+
+###############scontrol assignmnet#############################################################
+
+job info of specific user
+squeue -u <uername>
+
+status pf job and jpb state time means job rnning time so far include long
+squeue -u <user_name> -s -l
+
+all state
+squeue -t all
+squeue -t PD
+squeue -t R
+squeus -t F
+squeue -t CD
+
+
+iterate output every 60 sec
+squeue -i 10
+
+
+#################################################################################################################################
+
+
+Slurm Association
+
+sacctmgr show cluster
+sacctmgr create cluster cluster1
+sacctmgr add account rmalab-acc
+sacctmgr show accounts
+sacctmgr create user name=hpcsa1 DefaultAccount=rmalab-acc
+sacctmgr show assoc
+sacctmgr show user
+
+
+sacctmgr add account demolab-lab
+
+sacctmgr -i modify user where name=hpcsa1 set defaultaccount=demolab-lab
+
+
+
+###############################################################################################################################################
+
+Reservation
+scontol show reservation
+scontrol create reservation StartTime=now EndTime=2024-01-11T01:00:00 user=root flags=maint,ignore_job nodes=ALL
+scontrol update reservation=root_2 Endtime=2024-01-1101:30:00
+scontrol update reservation=root_2 user=root,hpcsa1
+
+#######################################################################################
+ssat
+sacct
+sreport
+
+
+submit job using reservtation
+
+
+scontrol create reservation StartTime=now EndTime=2024-01-11T21:00:00 user=root flags=maint,ignore_job nodes=compute1.lab
+
+srun --reservation=root_4 --nodes=1 --time=00:20:00 --pty /bin/bash
+
+squeue -l
+
+
+sacctmgr update user hpcsa1 account=demolab-acc set maxsubmit=0
+sacctmgr list user hpcsa1 withassoc format=User,Account,MaxSubmit
+
+######################################################################################
+sacct -n -S 2024-01-10 -E 2024-01-11 -o jobID
+ sacct --user=hpcsa1 --format=JobID
+sacct --partition=abc --format=JobID
+
+#############################################################################
+qos
+sacctmgr show qos
+
+sacctmgr create qos 2cpu
+
+sacctmgr modify qos 2cpu set MaxTRESPerJob=cpu=2 flags=denyonlimit
+
+
+sacctmgr modify user  hpcsa1 set qos=2cpu 
+sacctmgr modify user  hpcsa1 set DefaultQos=2cpu
+sacctmgr modify user  hpcsa1 set DefaultQos=normal
+srun --nodes=1 --time=00:10:00 --cpus-per-task=1  --pty /bin/bash 
+	
